@@ -1,7 +1,44 @@
-# API_PYTHON
-## Subtítulo
+# Sistema de BI para E-commerce (Dashboard + Backend Integrado)
 
-Refatoração da API_TINY em PYTHON
+Projeto completo para análise de dados de e-commerce, evoluindo de rotinas manuais no Google Apps Script para uma infraestrutura automatizada com:
+
+- Python (ETL e API Flask)
+- PostgreSQL (cálculos de margens)
+- Grafana (visualização)
+- Frontend HTML/CSS/JS puro
+- NGINX como proxy reverso para segurança e controle de acesso.
+- Servidor de linha de comando Ubuntu 24.04
+
+## 📋 Funcionalidades
+
+### 🧠 Núcleo de Processamento
+- Consumo da API do ERP com autenticação OAuth
+- Cálculo automático de:
+  - Margens líquidas/brutas
+  - Taxas por marketplace (Mercado Livre, Shopee, etc)
+  - Impostos federais/estaduais
+- Sincronização incremental de vendas
+
+### 📊 Dashboard (Grafana)
+Demonstração Dashboard <https://youtu.be/qJEXVIHbxAc>
+- Visualização em tempo real de:
+  - Performance por canal
+  - Comparativo de margens
+  - Análise de indicadores por múiltiplas categorias
+- Filtros de visualização personalizados (Produto, categoria, Fornecedor, loja, etc)
+
+### Front-end
+Demonsração Front <https://youtu.be/Z0kY-Ym2kgY>
+- Interface para atualização de vendas utilizando a API do ERP
+- Alteração e exclusão de vendas
+
+
+
+
+# Glossário
+
+
+Principais ferramentas utilizadas
 
 
 
