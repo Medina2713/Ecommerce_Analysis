@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fretes Avulsos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .form-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .form-section label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-section input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-section button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fretes Avulsos</h1>
+    <div class="container">
+    <!-- Contêiner dos botões -->
+    <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 10px;">
+        <!-- Botão de retorno ao index -->
+        <button onclick="window.location.href='/'" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+            Página Inicial
+        </button>
+        <!-- Botão vendas -->
+        <button onclick="window.location.href='/vendas'" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+            Vendas
+        </button>
+    </div>
+        
+
+        <!-- Formulário para Adicionar Registro -->
+        <div class="form-section">
+            <h2>Adicionar Novo Frete Avulso</h2>
+            <form id="add-form">
+                <label for="add-numNF">NF:</label>
+                <input type="text" id="add-numNF" name="add-numNF" placeholder="Digite o número da Nota Fiscal">
+
+                <label for="add-serieNF">Série:</label>
+                <input type="text" id="add-serieNF" name="add-serieNF" placeholder="Digite o número da série da Nota Fiscal">
+
+                <label for="add-idNF">ID:</label>
+                <input type="text" id="add-idNF" name="add-idNF" placeholder="Digite o ID da Nota Fiscal">
+
+                <label for="add-empresa">Empresa:</label>
+                <input type="text" id="add-empresa" name="add-empresa" placeholder="Digite o nome da Empresa">
+
+                <label for="add-subsidio">Subsídio:</label>
+                <input type="text" id="add-subsidio" name="add-subsidio" placeholder="Digite o valor do Subsidio">
+
+                <label for="add-valorFrete">Valor Frete:</label>
+                <input type="text" id="add-valorFrete" name="add-valorFrete" placeholder="Digite o valor do frete">
+
+                <button type="button" onclick="addFreteAvulso()">Adicionar</button>
+            </form>
+        </div>
+
+        <!-- Formulário de Busca e Alteração -->
+<div class="form-section">
+    <h2>Buscar e Alterar Frete Avulso</h2>
+    <form id="search-form">
+        <label for="search-numNF">NF:</label>
+        <input type="text" id="search-numNF" name="search-numNF" placeholder="Digite o número da NF">
+
+        <label for="search-serieNF">Série:</label>
+        <input type="text" id="search-serieNF" name="search-serieNF" placeholder="Digite o número da Série">
+
+        <button type="button" onclick="buscaFreteAvulso()">Buscar</button>
+    </form>
+
+    <div id="result-form" style="display: none; margin-top: 20px;">
+        <h3>Dados do Registro</h3>
+        <label for="edit-valorFrete">Valor do Frete:</label>
+        <input type="text" id="edit-valorFrete" name="edit-valorFrete">
+
+        <label for="edit-subsidio">Subsídio:</label>
+        <input type="text" id="edit-subsidio" name="edit-subsidio">
+
+        <label for="edit-empresa">Empresa:</label>
+        <input type="text" id="edit-empresa" name="edit-empresa">
+
+        <button  id="btn-salva-alteracao-frete-avulso" onclick="salvarFreteAvulso()">Salvar Alterações</button>
+        <button id="btn-clear-busca-frete-avulso" onclick="clearSearchFreteAvulso()">Limpar Busca</button>
+    </div>
+</div>
+
+     
+
+        <!-- Tabela com Últimos Registros -->
+        <h2>Últimos Registros</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>NF</th>
+                    <th>Serie</th>
+                    <th>Empresa</th>
+                    <th>Subsídio</th>
+                    <th>Valor Frete</th>
+                </tr>
+            </thead>
+            <tbody id="records-table">
+                
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function addFreteAvulso() {
+    // Captura os valores dos campos do formulário
+    const numNF = document.getElementById('add-numNF').value.trim();
+    const serieNF = document.getElementById('add-serieNF').value.trim();
+    const ID = document.getElementById('add-idNF').value.trim();
+    const empresa = document.getElementById('add-empresa').value.trim();
+    const subsidio = document.getElementById('add-subsidio').value.trim().replace(',', '.');
+    const valorFrete = document.getElementById('add-valorFrete').value.trim().replace(',', '.');
+    
+
+    // Validação: Pelo menos um dos campos obrigatórios precisa ser preenchido
+    if (!((numNF && serieNF) || ID)) {
+        alert(`Por favor, preencha os campos obrigatórios.\nNF: ${numNF || '[vazio]'}\nSérie: ${serieNF || '[vazio]'}\nID: ${ID || '[vazio]'}`);
+        return;
+    }
+
+    // Validações adicionais: Verifica se os campos numéricos são válidos
+    const subsidioValue = parseFloat(subsidio);
+    const valorFreteValue = parseFloat(valorFrete);
+    if (isNaN(subsidioValue) || isNaN(valorFreteValue)) {
+        alert('Os campos "Subsidio" e "Valor Frete" devem conter valores numéricos.');
+        return;
+    }
+
+    // Cria o objeto com os dados a serem enviados
+    const recordData = {
+        numNF: numNF || null, // Valores vazios tratados como null
+        serieNF: serieNF || null,
+        ID: ID || null,
+        empresa: empresa || null,
+        subsidio: subsidioValue || 0,
+        valorFrete: valorFreteValue || 0,
+    };
+
+    // Envia os dados para o backend usando fetch()
+    fetch('http://145.223.29.231:5000/add-record-frete-avulso', { 
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(recordData),
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    // Lança um erro com a mensagem do backend
+                    throw new Error(errorData.error || `Erro: ${response.status}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Exibe uma mensagem de sucesso
+            alert(data.message || 'Registro adicionado com sucesso!');
+            fetchLastRecords()
+        })
+        .catch(error => {
+            // Trata erros de requisição
+            console.error('Erro ao enviar os dados:', error);
+            alert(`Erro ao adicionar registro: ${error.message}`);
+        });
+}
+
+        function formatValueBRL(value) {
+            // Converte para número ou usa 0 como padrão, e formata em BRL
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value) || 0);
+        }
+
+        function buscaFreteAvulso(){
+            const numNF = document.getElementById('search-numNF').value
+            const serieNF = document.getElementById('search-serieNF').value
+            const empresa = document.getElementById('edit-empresa').value
+
+            fetch(`/get_frete_avulso?numNF=${numNF}&serieNF=${serieNF}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Resposta do backend:', data); // Depuração
+            console.log('Valor do frete:', data.valor_frete); // Verifique o valor específico
+            console.log('Subsídio:', data.subsidio); // Verifique o valor específico
+            console.log('Empresa:', data.empresa); // Verifique o valor específico
+
+            if (data.success) {
+                
+                document.getElementById('edit-valorFrete').value = data.valor_frete ?? 0 //formatValueBRL(data.valorFrete);
+                document.getElementById('edit-subsidio').value = data.subsidio ?? 0//formatValueBRL(data.subsidio);
+                document.getElementById('edit-empresa').value = data.empresa;
+                document.getElementById('result-form').style.display = 'block';
+            } else {
+                alert(`Registro não encontrado.`);
+            }
+        })
+        .catch(error => console.error('Erro ao buscar registro:', error));
+        }
+        
+        function clearSearchFreteAvulso() {
+            // Limpar os campos de busca
+            document.getElementById('search-numNF').value = '';
+            document.getElementById('search-serieNF').value = '';
+
+            // Limpar os resultados exibidos
+            document.getElementById('edit-valorFrete').value = '';
+            document.getElementById('edit-subsidio').value = '';
+
+            // Opcional: Esconder o formulário de resultado
+            document.getElementById('result-form').style.display = 'none';
+        }
+
+
+        function salvarFreteAvulso(){
+            console.log('Salvar frete acionado')
+            const numNF = document.getElementById('search-numNF').value
+            const serieNF = document.getElementById('search-serieNF').value
+            const valorFrete = document.getElementById('edit-valorFrete').value.replace(',', '.')
+            const subsidio = document.getElementById('edit-subsidio').value.replace(',', '.')
+            const empresa = document.getElementById('edit-empresa').value
+            console.log('Dados coletados:', {numNF, serieNF, valorFrete, subsidio, empresa});
+
+            fetch('/salvarFreteAvulso', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({numNF, serieNF, valorFrete, subsidio, empresa})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchLastRecords();
+                        alert('Alterações salvas com sucesso!')
+                        
+
+                    } else {
+                        alert('Erro ao salvar as alterações')
+                    }
+                })
+                .catch(error => console.error('Erro ao salvar alterações:', error));
+            
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+        fetchLastRecords();
+    });
+
+    function fetchLastRecords() {
+        fetch('http://145.223.29.231:5000/get_last_fretes_avulsos') 
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro ao buscar registros: ${response.status}`);
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                
+                const tableBody = document.getElementById('records-table');
+                tableBody.innerHTML = ''; // Limpa a tabela antes de adicionar os dados
+
+                data.forEach(record => {
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${record.id}</td>
+                        <td>${record.nf}</td>
+                        <td>${record.serie}</td>
+                        <td>${record.empresa}</td>
+                        <td>${record.subsidio}</td>
+                        <td>${record.valor_frete}</td>
+                    `;
+                    tableBody.appendChild(row);
+                    
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao carregar registros:', error);
+                alert('Erro ao carregar registros. Verifique o console para mais detalhes.');
+            });
+    }
+    </script>
+</body>
+</html>

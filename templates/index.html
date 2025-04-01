@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Vendas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #mensagem {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        #resultado {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Controle de Vendas</h1>
+    
+    <div class="container">
+        <!-- Botão para chamar a função -->
+        <button id="get_vendas_button" onclick="getVendas()">Puxar Vendas</button>
+
+        <!-- Botão para acessar a página de CRUD -->
+        <!-- <button onclick="window.location.href='/fretes_avulsos'">Fretes Avulsos</button> -->
+
+        <button onclick="window.location.href='/app/vendas'">Alterar Vendas</button>
+
+        <button onclick="window.open('http://145.223.29.231:3000/public-dashboards/0cab0c8bfc9744c780828c7b97e539cc', '_blank')">Abrir Dashboard</button>
+
+        <!-- <button onclick="window.location.href='/crud_geral'">CRUD Geral</button> -->
+
+        <!-- Mensagem de status -->
+        <p id="mensagem"></p>
+        
+        <!-- Exibe o resultado -->
+        <pre id="resultado"></pre>
+
+        
+    </div>
+    
+        <!--GRAFANA
+        <iframe src="http://145.223.29.231:3000/public-dashboards/0cab0c8bfc9744c780828c7b97e539cc" width="100%" height="600" frameborder="0"></iframe>-->
+    
+    
+
+    <!-- Importa o arquivo JavaScript externo -->
+   <!-- <script src="static/scripts.js" defer></script>-->
+</body>
+<script>
+    function getVendas() {
+    // Exibe a mensagem enquanto a requisição está sendo processada
+    document.getElementById("get_vendas_button").disabled = true;
+    document.getElementById("mensagem").innerHTML = "Aguardando resultado...";
+    
+    // Faz a requisição GET para o endpoint
+    fetch('/app/get_vendas')
+        .then(response => response.json())
+        .then(data => {
+            // Exibe o resultado na página
+            if (data.mensagem) {
+                document.getElementById("mensagem").innerHTML = data.mensagem;
+            }
+            if (data.resultado) {
+                document.getElementById("resultado").innerHTML = JSON.stringify(data.resultado, null, 2);
+            }
+        })
+        .catch(error => {
+            // Em caso de erro
+            document.getElementById("mensagem").innerHTML = "Erro ao chamar a função!";
+            console.error('Erro:', error);
+        });
+        document.getElementById("get_vendas_button").disabled = false;
+}
+</script>
+</html>

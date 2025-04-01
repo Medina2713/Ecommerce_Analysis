@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta e Alteração de Vendas</title>
+    <style>
+
+        /* Adicione estas regras ao seu CSS existente */
+
+#search-form {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.delete-btn {
+    background-color: #dc3545 !important; /* Vermelho para diferenciar */
+    margin-left: auto; /* Empurra para a direita */
+}
+
+/* Mantenha suas regras existentes abaixo */
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .form-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .form-section label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-section input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-section button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Consulta e Alteração de Vendas</h1>
+    <div class="container">
+        <!-- Contêiner dos botões -->
+        <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 10px;">
+            <button onclick="window.location.href='/app'" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                Página Inicial
+            </button>
+           <!--<button onclick="window.location.href='/app/fretes_avulsos'" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                Fretes Avulsos
+            </button>--> 
+        </div>
+
+        <!-- Formulário de Busca e Alteração -->
+        <div class="form-section">
+            <h2>Buscar e Alterar Venda</h2>
+            <form id="search-form">
+                <label for="search-nf">NF:</label>
+                <input type="text" id="search-nf" name="search-nf" placeholder="Digite o número da NF">
+
+                <label for="search-serie">Série:</label>
+                <input type="text" id="search-serie" name="search-serie" placeholder="Digite o número da Série">
+
+                <button type="button" onclick="buscarVenda()">Buscar</button>
+                <button type="button" id = "exclude-btn" class = "delete-btn" onclick="excluirVenda()">Excluir</button>
+            </form>
+
+            <div id="result-form" style="display: none; margin-top: 20px;">
+                <h3>Dados da Venda</h3>
+                <label for="edit-loja">Loja:</label>
+                <input type="text" id="edit-loja" name="edit-loja">
+
+                <label for="edit-valor-nf">Valor da NF:</label>
+                <input type="text" id="edit-valor-nf" name="edit-valor-nf">
+
+                <label for="edit-comissao">Comissão:</label>
+                <input type="text" id="edit-comissao" name="edit-comissao">
+
+                <label for="edit-margem-mktp">Margem MKTP:</label>
+                <input type="text" id="edit-margem-mktp" name="edit-margem-mktp">
+
+                <label for="edit-frete_mktp">Frete MKTP:</label>
+                <input type="text" id="edit-frete_mktp" name="edit-frete_mktp">
+
+                <label for="edit-subsidio">Subsídio:</label>
+                <input type="text" id="edit-subsidio" name="edit-subsidio">
+
+                <label for="edit-desconto">Desconto:</label>
+                <input type="text" id="edit-desconto" name="edit-desconto">
+
+                <button onclick="salvarVenda()">Salvar Alterações</button>
+                <button onclick="limparBuscaVenda()">Limpar Busca</button>
+            </div>
+        </div>
+
+        <!-- Tabela com Últimos Registros -->
+        <h2>Últimas 30 Vendas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>NF</th>
+                    <th>Série</th>
+                    <th>Loja</th>
+                    <th>Valor NF</th>
+                    <th>Comissão</th>
+                    <th>Margem MKTP</th>
+                    <th>Frete MKTP</th>
+                    <th>Subsídio</th>
+                    <th>Desconto</th>
+                    
+                </tr>
+            </thead>
+            <tbody id="vendas-table">
+                <!-- Dados preenchidos dinamicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+        buscarUltimasVendas();
+
+        /*const excludeBtn = document.getElementById('exclude-btn')
+        if (excludeBtn){
+            excludeBtn.addEventListener('click', excluirVenda);
+        } */
+    });
+        function buscarUltimasVendas() {
+        fetch('/app/busca_vendas') //Antigo fetch('http://145.223.29.231:5000/busca_vendas') 
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro ao buscar registros: ${response.status}`);
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                
+                const tableBody = document.getElementById('vendas-table');
+                tableBody.innerHTML = ''; // Limpa a tabela antes de adicionar os dados
+
+                data.forEach(record => {
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${record.nf}</td>
+                        <td>${record.serie}</td>
+                        <td>${record.loja}</td>
+                        <td>${record.valor_nf}</td>
+                        <td>${record.comissao}</td>
+                        <td>${record.margem_mktp}</td>
+                        <td>${record.frete_mktp}</td>
+                        <td>${record.subsidio}</td>
+                        <td>${record.desconto}</td>
+                        
+                    `;
+                    tableBody.appendChild(row);
+                    
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao carregar registros:', error);
+                alert('Erro ao carregar registros. Verifique o console para mais detalhes.');
+            });
+    }
+
+        function buscarVenda() {
+            const numNF = document.getElementById('search-nf').value;
+            const serieNF = document.getElementById('search-serie').value;
+
+            console.log('NF: ' + numNF + ' Serie: ' + serieNF)
+
+            fetch(`/app/buscar_venda?numNF=${numNF}&serieNF=${serieNF}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('edit-loja').value = data.loja;
+                        document.getElementById('edit-valor-nf').value = data.valor_nf;
+                        document.getElementById('edit-comissao').value = data.comissao;
+                        document.getElementById('edit-margem-mktp').value = data.margem_mktp;
+                        document.getElementById('edit-frete_mktp').value = data.frete_mktp;
+                        document.getElementById('edit-subsidio').value = data.subsidio;
+                        document.getElementById('edit-desconto').value = data.desconto;
+                        document.getElementById('result-form').style.display = 'block';
+                    } else {
+                        alert('Venda não encontrada.');
+                    }
+                })
+                .catch(error => console.error('Erro ao buscar venda:', error));
+        }
+
+        function salvarVenda() {
+            const dados = {
+                numNF: document.getElementById('search-nf').value,
+                serieNF: document.getElementById('search-serie').value,
+                loja: document.getElementById('edit-loja').value,
+                valor_nf: document.getElementById('edit-valor-nf').value.replace(',', '.'),
+                comissao: document.getElementById('edit-comissao').value.replace(',', '.'),
+                margem_mktp: document.getElementById('edit-margem-mktp').value.replace(',', '.'),
+                frete_mktp: document.getElementById('edit-frete_mktp').value.replace(',', '.'),
+                subsidio: document.getElementById('edit-subsidio').value.replace(',', '.'),
+                desconto: document.getElementById('edit-desconto').value.replace(',', '.')
+            };
+
+            fetch('/app/salvar_venda', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.mensagem || 'Alterações salvas com sucesso!');
+                    buscarUltimasVendas();
+                })
+                .catch(error => console.error('Erro ao salvar venda:', error));
+        }
+
+        function limparBuscaVenda() {
+            document.getElementById('search-nf').value = '';
+            document.getElementById('search-serie').value = '';
+            document.getElementById('result-form').style.display = 'none';
+        }
+
+        function excluirVenda() {
+            const numNF = document.getElementById('search-nf').value;
+            const serieNF = document.getElementById('search-serie').value;
+
+            console.log('NF: ' + numNF + ' Serie: ' + serieNF)
+            if (confirm(`Deseja excluir a nota ${numNF} de série ${serieNF} ?`)){
+                
+                fetch(`/app/excluir_venda?numNF=${numNF}&serieNF=${serieNF}`, {method: 'DELETE'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        
+                        alert('Venda excluida')
+                        window.location.reload();
+
+                    } else {
+                        alert('Erro ao excluir a venda.');
+                    }
+                })
+                .catch(error => console.error('Erro ao buscar venda:', error));
+            }
+            
+        }
+    </script>
+</body>
+</html>
