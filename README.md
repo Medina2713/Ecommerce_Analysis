@@ -20,6 +20,8 @@ Projeto completo para análise de dados de e-commerce, evoluindo de rotinas manu
 - Sincronização incremental de vendas
 
 ### 📊 Dashboard (Grafana)
+![image](https://github.com/user-attachments/assets/708685de-a891-48bf-aad8-463bd3919e83)
+
 Demonstração Dashboard <https://youtu.be/qJEXVIHbxAc>
 - Visualização em tempo real de:
   - Performance por canal
